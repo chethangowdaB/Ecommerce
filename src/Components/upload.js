@@ -1,33 +1,35 @@
-import React,{ useState} from 'react';
+import React, { useState } from 'react';
 import { useLocation } from 'react-router-dom';
-import axios from'axios';
+import axios from 'axios';
 import FileBase64 from 'react-file-base64';
+import './upload.css'; // Import the CSS file for styling
+
 const Upload = () => {
   const location = useLocation();
-  const { data } = location.state || {}; 
-    const userdata=data;
-    const [productId, setProductId] = useState('');
-    const [productName, setProductName] = useState('');
-    const [productImage, setProductImage] = useState('');
-    const [productDescription, setProductDescription] = useState('');
-    const [productImagelink, setProductImageLink] = useState('');
-    const [rate,setrate]=useState('')
-  const  handleupload= async ()=>{
+  const { data } = location.state || {};
+  const userdata = data;
+  const [productId, setProductId] = useState('');
+  const [productName, setProductName] = useState('');
+  const [productImage, setProductImage] = useState('');
+  const [productDescription, setProductDescription] = useState('');
+  const [productImagelink, setProductImageLink] = useState('');
+  const [rate, setrate] = useState('');
+
+  const handleupload = async () => {
     setProductImageLink(productImage.base64);
     try {
-        const response =     await axios.post('http://localhost:8000/upload', {userdata,productId,productName,productImagelink,productDescription,rate});
-        if(response.status==201){
-        }
-      } catch (error) {
-        console.error(error);
+      const response = await axios.post('http://localhost:8000/upload', { userdata, productId, productName, productImagelink, productDescription, rate });
+      if (response.status === 201) {
       }
-   
+    } catch (error) {
+      console.error(error);
+    }
+  };
 
-  }
   return (
-    <div>
+    <div className="upload-container">
       <h2>Upload Product</h2>
-     
+      <div className="upload-form">
         <label>
           Product ID:
           <input
@@ -46,10 +48,11 @@ const Upload = () => {
             required
           />
         </label>
-        <label>
+        <label className="file-upload">
           Product Image:
           <FileBase64
-        onDone={(files) => setProductImage(files)}/>
+            onDone={(files) => setProductImage(files)}
+          />
         </label>
         <label>
           Product Description:
@@ -60,15 +63,16 @@ const Upload = () => {
           />
         </label>
         <label>
-          Product Description:
-          <input type="number"
+          Product rate:
+          <input
+            type="number"
             value={rate}
             onChange={(e) => setrate(e.target.value)}
             required
           />
         </label>
-        <button  onClick={handleupload} >Upload Product</button>
-      
+        <button onClick={handleupload}>Upload Product</button>
+      </div>
     </div>
   );
 };

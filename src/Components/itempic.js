@@ -2,10 +2,7 @@ import React from 'react';
 import axios from 'axios';
 
 const ItemPic = ({ itempi, email }) => {
- 
-
   const addToCart = async () => {
-    console.log()
     try {
       const response = await axios.post('http://localhost:8000/cart', {
         email,
@@ -19,13 +16,13 @@ const ItemPic = ({ itempi, email }) => {
   };
 
   return (
-    <figure className='fig'>
+    <figure className='figure'>
       <img className='img' src={itempi.productImagelink} alt={itempi.productName} />
-      <figcaption className='pa'>
-        <p>{itempi.productName}</p>
-        <p>{itempi.rate}</p>
+      <figcaption className='figcaption'>
+        <p className='p'>{itempi.productName}</p>
+        <p className='p'>₹‎{itempi.rate}</p>
       </figcaption>
-      <button onClick={addToCart}>Add to cart</button>
+      <button className='button' onClick={addToCart}>Add to cart</button>
     </figure>
   );
 };

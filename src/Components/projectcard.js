@@ -20,7 +20,7 @@ const ProjectCard = ({email}) => {
   return (
     <div>
       <center>
-        <h2 className='pro'>Items</h2>
+        <h2 className='pro' style={{marginTop:"100px"}}>Items</h2>
       </center>
       <Items projects={items} email={email}/>
     </div>

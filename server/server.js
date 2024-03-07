@@ -13,7 +13,6 @@ const sec_key = process.env.JWT_SECRET || 'xxxxxxxxxxxxxxxxxxaaaaaaaaaaaaaaaaaaa
 
 app.use(bodyParser.json());
 app.use(cors());
-
 mongoose.connect('mongodb://127.0.0.1:27017/myangular').then(() => {
   console.log('Connected to MongoDB');
 }).catch(err => {
@@ -49,7 +48,14 @@ app.post('/login', async (req, res) => {
 
 app.post('/upload', async (req, res) => {
   try {
-    const { userdata, productId, productName, productImagelink, productDescription ,rate} = req.body;
+    const { userdata, productId, productName, productImagelink, productDescription, rate } = req.body;
+
+    // Check if all required fields are present
+    if (!userdata || !productId || !productName || !productImagelink || !productDescription || !rate) {
+      throw new Error('Incomplete request body');
+    }
+
+    // Find the user
     const user = await User.findOne({ email: userdata });
 
     if (!user) {
@@ -67,7 +73,6 @@ app.post('/upload', async (req, res) => {
     const productExists = user.uploadeditem.some(item => item.productId === productId);
 
     if (productExists) {
-      // Update product in the user's uploadeditem array
       await User.findOneAndUpdate(
         { email: userdata, 'uploadeditem.productId': productId },
         {
@@ -75,50 +80,45 @@ app.post('/upload', async (req, res) => {
             'uploadeditem.$.productName': productName,
             'uploadeditem.$.productImagelink': productImagelink,
             'uploadeditem.$.productDescription': productDescription,
-            'uploadeditem.$.rate':rate
+            'uploadeditem.$.rate': rate
           },
         }
       );
-
-      // Update product in the main Product folder if it exists
-      const productExistsInMain = await Products.exists({ name: 'uni', 'items.userdata': userdata, 'items.productId': productId });
-
-      if (productExistsInMain) {
-        await Products.findOneAndUpdate(
-          { name: 'uni', 'items.userdata': userdata, 'items.productId': productId },
-          {
-            $set: {
-              'items.$.productName': productName,
-              'items.$.productImagelink': productImagelink,
-              'items.$.productDescription': productDescription,
-              'items.$.rate':rate
-            },
-          }
-        );
-      }
     } else {
+      // Add product to user's uploadeditem array
       await User.findOneAndUpdate(
         { email: userdata },
         { $push: { uploadeditem: productData } }
       );
-
-      let products = await Products.findOne({ name: 'uni' });
-      
-      if (!products) {
-        products = new Products({ name: 'uni', items: [] });
-      }
-
-      const productDataWithEmail = { userdata, ...productData };
-      products.items.push(productDataWithEmail);
-      await products.save();
     }
+
+    // Update or add product in the main Products section
+    let products = await Products.findOne({ name: 'uni' });
+
+    if (!products) {
+      products = new Products({ name: 'uni', items: [] });
+    }
+    const u= products.items.findIndex(item=> item.userdata===userdata);
+    const productIndex = products.items.findIndex(item => item.productId === productId);
+
+    if (productIndex !== -1 && u!==-1) {
+      // Product exists in the main Products section, update it
+      products.items[productIndex] = { userdata, ...productData };
+    } else {
+      // Product doesn't exist in the main Products section, add it
+      products.items.push({ userdata, ...productData });
+    }
+
+    await products.save();
 
     res.json({ message: 'Product uploaded successfully!' });
   } catch (error) {
     console.error('Error uploading product:', error);
-    res.status(500).json({ message: 'Error uploading product' });
+    res.status(500).json({ message: error.message || 'Error uploading product' });
   }
 });
+
+
 
 app.get('/products', async (req, res) => {
   try {

@@ -16,8 +16,8 @@ const Title =(props)=>{
   return (
    <div>
     <nav>
-    <h1>Ecommerce Website</h1>
-    <h1> Heloooo {location.state.id}</h1>
+    <h1>Peer To Peer MarketPlace</h1>
+    <h1 id="user">Welcome {location.state.id}</h1>
     <button onClick={handleCartClick}>Cart</button>
     <button onClick={upload}>uploaditem</button>
     </nav>

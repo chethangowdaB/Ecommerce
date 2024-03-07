@@ -7,10 +7,8 @@
 
 }
 .footer{
-    background: #12c2e9;  
-    background: -webkit-linear-gradient(to right, #f64f59, #c471ed, #12c2e9);  
-    background: linear-gradient(to right, #0ad918, #b7de0a, #487c87);
-    }
+    background: #12c2e9c5;  
+}
 .left{
     height: 100%;
     max-width: 100%;
